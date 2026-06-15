@@ -1,0 +1,160 @@
+/* ── Scrollbar ────────────────────────────────────────────────────── */
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { scrollbar-width: none; }
+
+.table-wrap { scrollbar-width: thin; scrollbar-color: #334155 transparent; }
+.table-wrap::-webkit-scrollbar { width: 5px; height: 5px; }
+.table-wrap::-webkit-scrollbar-track { background: transparent; }
+.table-wrap::-webkit-scrollbar-thumb { background: #334155; border-radius: 99px; }
+
+/* ── Table cells (JS-generated rows use these classes) ───────────── */
+.th-cell {
+  padding: 8px 12px;
+  text-align: left;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  color: #64748b;
+  border-bottom: 1px solid #1e293b;
+  white-space: nowrap;
+}
+
+.td-row td {
+  padding: 9px 12px;
+  border-bottom: 1px solid rgba(30,41,59,0.7);
+  vertical-align: middle;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.td-row:hover td { background: rgba(255,255,255,0.03); }
+
+.td-muted { color: #475569; font-size: 0.78rem; }
+.td-dim   { color: #64748b; }
+
+/* ── Card cell (thumbnail + text) ────────────────────────────────── */
+.card-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 180px;
+  max-width: 240px;
+}
+
+.card-thumb {
+  width: 30px;
+  height: 42px;
+  border-radius: 4px;
+  object-fit: cover;
+  background: #1e293b;
+  flex-shrink: 0;
+}
+
+.card-info strong {
+  display: block;
+  font-weight: 600;
+  font-size: 0.82rem;
+  line-height: 1.25;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.card-info span {
+  font-size: 0.72rem;
+  color: #64748b;
+}
+
+/* ── Change column ────────────────────────────────────────────────── */
+.change-cell { display: flex; align-items: center; gap: 7px; }
+.change-bar  {
+  display: inline-block;
+  height: 4px;
+  border-radius: 2px;
+  min-width: 2px;
+  max-width: 44px;
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+.change-up   { color: #00e09b; font-weight: 700; }
+.change-down { color: #ff4e72; font-weight: 700; }
+
+/* ── Period tabs ──────────────────────────────────────────────────── */
+.period-tab {
+  background: transparent;
+  color: #64748b;
+  border: none;
+  border-radius: 6px;
+  padding: 5px 11px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+  white-space: nowrap;
+}
+.period-tab:hover  { background: #1e293b; color: #e2e8f0; }
+.period-tab.active { background: #00b37a; color: #fff; }
+
+/* ── Combobox dropdown ────────────────────────────────────────────── */
+.combobox { position: relative; }
+
+.combobox-list {
+  display: none;
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  min-width: 200px;
+  max-height: 240px;
+  overflow-y: auto;
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 10px;
+  list-style: none;
+  z-index: 200;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+  scrollbar-width: thin;
+  scrollbar-color: #334155 transparent;
+}
+.combobox-list.open { display: block; }
+
+.combobox-option {
+  padding: 9px 12px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #e2e8f0;
+}
+.combobox-option:hover,
+.combobox-option.active { background: rgba(0,224,155,0.1); color: #00e09b; }
+
+/* ── Sentinel / loading states ───────────────────────────────────── */
+.loading, .error, .empty {
+  text-align: center;
+  color: #475569;
+  padding: 28px !important;
+  font-size: 0.85rem;
+}
+
+/* ── Chart cards (collapsible panel) ─────────────────────────────── */
+.chart-card-title {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #64748b;
+  margin-bottom: 8px;
+}
+
+.chart-card canvas {
+  display: block;
+  height: 180px !important;
+  width: 100% !important;
+}
+
+/* ── Charts toggle icon update ──────────────────────────────────── */
+#chartsPanel:not(.hidden) ~ * #chartsToggleIcon,
+#chartsToggle[aria-expanded="true"] #chartsToggleIcon { content: "▾"; }

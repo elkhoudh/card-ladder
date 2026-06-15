@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Card Ladder Trending</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ["DM Sans","system-ui","sans-serif"], display: ["Space Grotesk","sans-serif"] },
+          colors: {
+            brand: { DEFAULT:"#00e09b", dim:"rgba(0,224,155,0.12)", mid:"#00b37a" },
+            danger: { DEFAULT:"#ff4e72", dim:"rgba(255,78,114,0.12)", mid:"#cc3a58" },
+          },
+        },
+      },
+    };
+  </script>
+  <link rel="stylesheet" href="/static/style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body class="h-full bg-[#07090e] text-slate-100 font-sans overflow-hidden">
+<div class="flex flex-col h-full">
+
+  <!-- ═══ HEADER ════════════════════════════════════════════════════════════ -->
+  <header class="flex-none bg-slate-900 border-b border-slate-800">
+
+    <!-- Top bar -->
+    <div class="flex items-center gap-3 px-5 h-12 border-b border-slate-800/60">
+      <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-brand-mid to-brand flex items-center justify-center font-display font-bold text-xs text-black flex-shrink-0 select-none">CL</div>
+      <span class="font-display font-bold text-sm tracking-tight whitespace-nowrap">Card Ladder Trending</span>
+
+      <div class="ml-auto flex items-center gap-2 min-w-0">
+        <span id="loadStatus" class="text-[11px] font-semibold text-brand truncate max-w-[340px]">Ready</span>
+        <span id="lastUpdated" class="text-[11px] text-slate-500 whitespace-nowrap hidden lg:block"></span>
+        <button id="loadAllBtn" type="button"
+          class="px-3 py-1.5 text-xs font-semibold rounded-lg border border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700 hover:border-slate-600 transition-colors whitespace-nowrap">
+          Load All
+        </button>
+        <button id="refreshBtn" type="button"
+          class="px-3 py-1.5 text-xs font-semibold rounded-lg border border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700 hover:border-slate-600 transition-colors whitespace-nowrap">
+          Refresh
+        </button>
+      </div>
+    </div>
+
+    <!-- Filter bar -->
+    <div class="flex items-end gap-3 px-5 py-2.5 overflow-x-auto scrollbar-hide">
+
+      <label class="flex flex-col gap-1 flex-shrink-0 min-w-[180px]">
+        <span class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Category</span>
+        <div class="combobox" id="categoryCombobox">
+          <input type="text" id="categoryInput" placeholder="All Sports & TCG" autocomplete="off"
+            class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 placeholder-slate-500 outline-none focus:border-brand-mid transition-colors" />
+          <input type="hidden" id="categoryValue" value="all" />
+          <ul class="combobox-list" id="categoryList"></ul>
+        </div>
+      </label>
+
+      <label class="flex flex-col gap-1 flex-shrink-0">
+        <span class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Period</span>
+        <div id="periodTabs" role="group"
+          class="flex bg-slate-800 border border-slate-700 rounded-lg p-0.5 gap-0.5">
+          <button class="period-tab" data-value="1d" type="button">1D</button>
+          <button class="period-tab" data-value="1w" type="button">1W</button>
+          <button class="period-tab active" data-value="1m" type="button">1M</button>
+          <button class="period-tab" data-value="3m" type="button">3M</button>
+          <button class="period-tab" data-value="1y" type="button">1Y</button>
+        </div>
+        <input type="hidden" id="periodSelect" value="1m" />
+      </label>
+
+      <label class="flex flex-col gap-1 flex-shrink-0">
+        <span class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Search</span>
+        <input type="search" id="cardSearchInput" placeholder="Player, set, card…"
+          class="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 placeholder-slate-500 outline-none focus:border-brand-mid transition-colors w-48" />
+      </label>
+
+      <label class="flex flex-col gap-1 flex-shrink-0">
+        <span class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Min %</span>
+        <input type="number" id="minChangeInput" placeholder="e.g. 10" step="0.1"
+          class="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 placeholder-slate-500 outline-none focus:border-brand-mid transition-colors w-24" />
+      </label>
+
+      <label class="flex flex-col gap-1 flex-shrink-0">
+        <span class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Max %</span>
+        <input type="number" id="maxChangeInput" placeholder="e.g. 100" step="0.1"
+          class="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 placeholder-slate-500 outline-none focus:border-brand-mid transition-colors w-24" />
+      </label>
+
+      <label class="flex flex-col gap-1 flex-shrink-0">
+        <span class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Min Sales</span>
+        <input type="number" id="minSalesInput" placeholder="e.g. 5" min="0"
+          class="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 placeholder-slate-500 outline-none focus:border-brand-mid transition-colors w-24" />
+      </label>
+
+      <label class="flex flex-col gap-1 flex-shrink-0">
+        <span class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Sold Within</span>
+        <input type="number" id="soldWithinInput" placeholder="days" min="1"
+          class="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 placeholder-slate-500 outline-none focus:border-brand-mid transition-colors w-24" />
+      </label>
+
+      <button id="clearFiltersBtn" type="button"
+        class="self-end px-3 py-2 text-xs font-semibold rounded-lg border border-slate-700 bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-slate-200 transition-colors whitespace-nowrap mb-0.5">
+        Clear
+      </button>
+    </div>
+  </header>
+
+  <!-- ═══ STATS ROW ═════════════════════════════════════════════════════════ -->
+  <div class="flex-none grid grid-cols-4 gap-3 px-5 py-3 border-b border-slate-800/60 bg-[#07090e]">
+
+    <div class="rounded-xl border border-brand/20 bg-gradient-to-br from-brand/8 to-transparent px-4 py-3">
+      <p class="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-1">Gainers</p>
+      <p class="font-display font-bold text-2xl text-brand tabular-nums" id="statUpCount">—</p>
+      <p class="text-[11px] text-slate-500 mt-1 tabular-nums" id="statAvgUp">avg —</p>
+    </div>
+
+    <div class="rounded-xl border border-danger/20 bg-gradient-to-br from-danger/8 to-transparent px-4 py-3">
+      <p class="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-1">Losers</p>
+      <p class="font-display font-bold text-2xl text-danger tabular-nums" id="statDownCount">—</p>
+      <p class="text-[11px] text-slate-500 mt-1 tabular-nums" id="statAvgDown">avg —</p>
+    </div>
+
+    <div class="rounded-xl border border-slate-800 bg-slate-900/60 px-4 py-3">
+      <p class="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-1">Top Gain</p>
+      <p class="font-display font-bold text-2xl text-slate-100 tabular-nums" id="statTopGainer">—</p>
+      <p class="text-[11px] text-slate-500 mt-1">best mover</p>
+    </div>
+
+    <div class="rounded-xl border border-slate-800 bg-slate-900/60 px-4 py-3">
+      <p class="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-1">Top Loss</p>
+      <p class="font-display font-bold text-2xl text-slate-100 tabular-nums" id="statTopLoser">—</p>
+      <p class="text-[11px] text-slate-500 mt-1">worst mover</p>
+    </div>
+
+  </div>
+
+  <!-- ═══ TABLES (primary content, fills remaining height) ════════════════ -->
+  <div class="flex-1 grid grid-cols-2 divide-x divide-slate-800 overflow-hidden min-h-0">
+
+    <!-- Trending Up -->
+    <div class="flex flex-col overflow-hidden">
+      <div class="flex-none flex items-center justify-between px-4 py-2.5 bg-slate-900 border-b border-slate-800">
+        <h2 class="font-display font-semibold text-sm">Trending Up</h2>
+        <span id="upBadge" class="text-[11px] font-bold px-2.5 py-1 rounded-full bg-brand/10 text-brand tabular-nums">▲ Gainers</span>
+      </div>
+      <div id="upTableWrap" class="table-wrap flex-1 overflow-auto min-h-0">
+        <table class="w-full border-collapse text-sm">
+          <thead class="sticky top-0 z-10 bg-slate-900">
+            <tr>
+              <th class="th-cell w-8">#</th>
+              <th class="th-cell">Card</th>
+              <th class="th-cell">Grade</th>
+              <th class="th-cell">Pop</th>
+              <th class="th-cell"># Sales</th>
+              <th class="th-cell change-col-label">1M %</th>
+              <th class="th-cell">Mkt Value</th>
+              <th class="th-cell">Last Sale</th>
+              <th class="th-cell">Last Sold</th>
+            </tr>
+          </thead>
+          <tbody id="trendingUpBody"></tbody>
+        </table>
+        <div id="upSentinel" class="py-3 text-center border-t border-slate-800 bg-slate-900/50">
+          <span id="upSentinelText" class="text-xs text-slate-500">Loading…</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Trending Down -->
+    <div class="flex flex-col overflow-hidden">
+      <div class="flex-none flex items-center justify-between px-4 py-2.5 bg-slate-900 border-b border-slate-800">
+        <h2 class="font-display font-semibold text-sm">Trending Down</h2>
+        <span id="downBadge" class="text-[11px] font-bold px-2.5 py-1 rounded-full bg-danger/10 text-danger tabular-nums">▼ Losers</span>
+      </div>
+      <div id="downTableWrap" class="table-wrap flex-1 overflow-auto min-h-0">
+        <table class="w-full border-collapse text-sm">
+          <thead class="sticky top-0 z-10 bg-slate-900">
+            <tr>
+              <th class="th-cell w-8">#</th>
+              <th class="th-cell">Card</th>
+              <th class="th-cell">Grade</th>
+              <th class="th-cell">Pop</th>
+              <th class="th-cell"># Sales</th>
+              <th class="th-cell change-col-label">1M %</th>
+              <th class="th-cell">Mkt Value</th>
+              <th class="th-cell">Last Sale</th>
+              <th class="th-cell">Last Sold</th>
+            </tr>
+          </thead>
+          <tbody id="trendingDownBody"></tbody>
+        </table>
+        <div id="downSentinel" class="py-3 text-center border-t border-slate-800 bg-slate-900/50">
+          <span id="downSentinelText" class="text-xs text-slate-500">Loading…</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══ CHARTS (collapsible, below tables) ════════════════════════════════ -->
+  <div class="flex-none border-t border-slate-800 bg-[#07090e]">
+    <button id="chartsToggle" onclick="document.getElementById('chartsPanel').classList.toggle('hidden')" type="button"
+      class="w-full flex items-center gap-2 px-5 py-2 text-[11px] font-semibold text-slate-500 hover:text-slate-300 transition-colors text-left">
+      <span id="chartsToggleIcon">▸</span>
+      <span>Analytics Charts</span>
+    </button>
+    <div id="chartsPanel">
+      <div class="grid grid-cols-4 gap-3 px-5 pb-4">
+        <div class="rounded-xl bg-slate-900 border border-slate-800 p-3 chart-card">
+          <p class="chart-card-title">Top Gainers</p>
+          <canvas id="gainersChart"></canvas>
+        </div>
+        <div class="rounded-xl bg-slate-900 border border-slate-800 p-3 chart-card">
+          <p class="chart-card-title">Top Losers</p>
+          <canvas id="losersChart"></canvas>
+        </div>
+        <div class="rounded-xl bg-slate-900 border border-slate-800 p-3 chart-card">
+          <p class="chart-card-title">% Distribution</p>
+          <canvas id="distributionChart"></canvas>
+        </div>
+        <div class="rounded-xl bg-slate-900 border border-slate-800 p-3 chart-card">
+          <p class="chart-card-title">By Category</p>
+          <canvas id="categoryChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ FOOTER ════════════════════════════════════════════════════════════ -->
+  <footer class="flex-none px-5 py-2 text-[11px] text-slate-600 border-t border-slate-800 bg-slate-900 flex items-center gap-2">
+    <span>Card Ladder public API</span>
+    <span class="text-slate-700">·</span>
+    <span>5 periods: 1D / 1W / 1M / 3M / 1Y</span>
+    <span class="text-slate-700">·</span>
+    <span>Browser cache 1 hr</span>
+    <span class="text-slate-700">·</span>
+    <a href="https://www.cardladder.com/ladder" target="_blank" rel="noopener" class="text-slate-500 hover:text-slate-300 transition-colors">cardladder.com/ladder</a>
+  </footer>
+
+</div>
+<script src="/static/cache.js"></script>
+<script src="/static/app.js"></script>
+</body>
+</html>
