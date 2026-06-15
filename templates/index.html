@@ -51,8 +51,9 @@
       </div>
     </div>
 
-    <!-- Filter bar — horizontally scrollable on all screen sizes -->
-    <div class="flex items-end gap-3 px-4 py-2.5 overflow-x-auto scrollbar-hide">
+    <!-- Filter bar — horizontally scrollable; fade edges hint at overflow -->
+    <div class="filter-scroll-wrap">
+    <div id="filterBar" class="flex items-end gap-3 px-4 py-2.5 overflow-x-auto scrollbar-hide">
 
       <label class="flex flex-col gap-1 flex-shrink-0 min-w-[160px]">
         <span class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Category</span>
@@ -112,6 +113,7 @@
         Clear
       </button>
     </div>
+    </div><!-- /filter-scroll-wrap -->
   </header>
 
   <!-- ═══ STATS ROW ═════════════════════════════════════════════════════════ -->

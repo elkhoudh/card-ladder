@@ -1045,4 +1045,22 @@ maxChangeInput.addEventListener("input", applyClientFilters);
 minSalesInput.addEventListener("input", applyClientFilters);
 soldWithinInput.addEventListener("input", applyClientFilters);
 
+// Filter bar scroll-fade indicators
+(function () {
+  const bar  = document.getElementById("filterBar");
+  const wrap = bar?.closest(".filter-scroll-wrap");
+  if (!bar || !wrap) return;
+
+  function update() {
+    const { scrollLeft, scrollWidth, clientWidth } = bar;
+    wrap.classList.toggle("can-scroll-left", scrollLeft > 4);
+    wrap.classList.toggle("at-scroll-end",   scrollLeft + clientWidth >= scrollWidth - 4);
+  }
+
+  bar.addEventListener("scroll", update, { passive: true });
+  // Run once on load and on resize
+  update();
+  window.addEventListener("resize", update, { passive: true });
+})();
+
 init();
