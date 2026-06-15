@@ -81,6 +81,15 @@
 .change-up   { color: #00e09b; font-weight: 700; }
 .change-down { color: #ff4e72; font-weight: 700; }
 
+/* ── Filter section labels ────────────────────────────────────────── */
+.filter-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #64748b;
+}
+
 /* ── Period tabs ──────────────────────────────────────────────────── */
 .period-tab {
   background: transparent;

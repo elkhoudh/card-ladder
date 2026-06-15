@@ -1025,15 +1025,21 @@ document.getElementById("chartsToggle")?.addEventListener("click", () => {
 refreshBtn.addEventListener("click", () => restartLoaders({ forceRefresh: true }));
 clearFiltersBtn.addEventListener("click", clearAllFilters);
 
-loadAllBtn.addEventListener("click", async () => {
+async function loadAllCards() {
   if (!upLoader || !downLoader) return;
   loadAllBtn.disabled = true;
+  const mobileBtn = document.getElementById("loadAllBtnMobile");
+  if (mobileBtn) mobileBtn.disabled = true;
   loadStatus.textContent = "Loading all remaining cards...";
   await Promise.all([upLoader.loadAll(), downLoader.loadAll()]);
   loadAllBtn.disabled = false;
+  if (mobileBtn) mobileBtn.disabled = false;
   lastUpdated.textContent = `Fully loaded ${new Date().toLocaleString()}`;
   onDataUpdate(true);
-});
+}
+
+loadAllBtn.addEventListener("click", loadAllCards);
+document.getElementById("loadAllBtnMobile")?.addEventListener("click", loadAllCards);
 
 // Search and % filters — always client-side on loaded data
 cardSearchInput.addEventListener("input", applyClientFilters);

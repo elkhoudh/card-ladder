@@ -14,7 +14,7 @@
         extend: {
           fontFamily: { sans: ["DM Sans","system-ui","sans-serif"], display: ["Space Grotesk","sans-serif"] },
           colors: {
-            brand: { DEFAULT:"#00e09b", dim:"rgba(0,224,155,0.12)", mid:"#00b37a" },
+            brand:  { DEFAULT:"#00e09b", dim:"rgba(0,224,155,0.12)", mid:"#00b37a" },
             danger: { DEFAULT:"#ff4e72", dim:"rgba(255,78,114,0.12)", mid:"#cc3a58" },
           },
         },
@@ -24,8 +24,6 @@
   <link rel="stylesheet" href="/static/style.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 </head>
-<!-- On desktop: overflow-hidden keeps everything in the viewport (split-pane layout).
-     On mobile: overflow-auto allows the page to scroll naturally. -->
 <body class="bg-[#07090e] text-slate-100 font-sans overflow-auto md:overflow-hidden">
 <div class="flex flex-col md:h-full">
 
@@ -36,38 +34,42 @@
     <div class="flex items-center gap-2 px-4 h-12 border-b border-slate-800/60">
       <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-brand-mid to-brand flex items-center justify-center font-display font-bold text-xs text-black flex-shrink-0 select-none">CL</div>
       <span class="font-display font-bold text-sm tracking-tight whitespace-nowrap">Card Ladder</span>
-
       <div class="ml-auto flex items-center gap-2 min-w-0">
-        <span id="loadStatus" class="text-[11px] font-semibold text-brand truncate max-w-[120px] sm:max-w-[260px] lg:max-w-[340px]">Ready</span>
+        <span id="loadStatus" class="text-[11px] font-semibold text-brand truncate max-w-[100px] sm:max-w-[240px] lg:max-w-[340px]">Ready</span>
         <span id="lastUpdated" class="text-[11px] text-slate-500 whitespace-nowrap hidden lg:block"></span>
         <button id="loadAllBtn" type="button"
-          class="px-3 py-1.5 text-xs font-semibold rounded-lg border border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700 hover:border-slate-600 transition-colors whitespace-nowrap">
+          class="hidden sm:block px-3 py-1.5 text-xs font-semibold rounded-lg border border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700 transition-colors whitespace-nowrap">
           Load All
         </button>
         <button id="refreshBtn" type="button"
-          class="px-3 py-1.5 text-xs font-semibold rounded-lg border border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700 hover:border-slate-600 transition-colors whitespace-nowrap">
-          Refresh
+          class="px-3 py-1.5 text-xs font-semibold rounded-lg border border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700 transition-colors whitespace-nowrap">
+          ↺ Refresh
         </button>
       </div>
     </div>
 
-    <!-- Filter bar — horizontally scrollable on all screen sizes -->
-    <div class="flex items-end gap-3 px-4 py-2.5 overflow-x-auto scrollbar-hide">
+    <!-- ── Filter section ───────────────────────────────────────────────────
+         Mobile  : flex-col — everything stacks, full-width, no hidden scroll
+         Desktop : flex-row flex-nowrap overflow-x-auto — single scrollable row
+    ──────────────────────────────────────────────────────────────────────── -->
+    <div class="flex flex-col md:flex-row md:flex-nowrap md:items-end gap-2 md:gap-3 px-4 py-3 md:py-2.5 md:overflow-x-auto md:scrollbar-hide">
 
-      <label class="flex flex-col gap-1 flex-shrink-0 min-w-[160px]">
-        <span class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Category</span>
+      <!-- Category: full-width on mobile -->
+      <label class="flex flex-col gap-1 md:flex-shrink-0 md:min-w-[160px]">
+        <span class="filter-label">Category</span>
         <div class="combobox" id="categoryCombobox">
           <input type="text" id="categoryInput" placeholder="All Sports & TCG" autocomplete="off"
-            class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 placeholder-slate-500 outline-none focus:border-brand-mid transition-colors" />
+            class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2.5 md:py-2 text-sm text-slate-100 placeholder-slate-500 outline-none focus:border-brand-mid transition-colors" />
           <input type="hidden" id="categoryValue" value="all" />
           <ul class="combobox-list" id="categoryList"></ul>
         </div>
       </label>
 
-      <label class="flex flex-col gap-1 flex-shrink-0">
-        <span class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Period</span>
+      <!-- Period: grid on mobile (equal tabs), flex on desktop -->
+      <label class="flex flex-col gap-1 md:flex-shrink-0">
+        <span class="filter-label">Period</span>
         <div id="periodTabs" role="group"
-          class="flex bg-slate-800 border border-slate-700 rounded-lg p-0.5 gap-0.5">
+          class="grid grid-cols-5 md:flex bg-slate-800 border border-slate-700 rounded-lg p-0.5 gap-0.5">
           <button class="period-tab" data-value="1d" type="button">1D</button>
           <button class="period-tab" data-value="1w" type="button">1W</button>
           <button class="period-tab active" data-value="1m" type="button">1M</button>
@@ -77,75 +79,76 @@
         <input type="hidden" id="periodSelect" value="1m" />
       </label>
 
-      <label class="flex flex-col gap-1 flex-shrink-0">
-        <span class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Search</span>
+      <!-- Search: full-width on mobile -->
+      <label class="flex flex-col gap-1 md:flex-shrink-0">
+        <span class="filter-label">Search</span>
         <input type="search" id="cardSearchInput" placeholder="Player, set, card…"
-          class="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 placeholder-slate-500 outline-none focus:border-brand-mid transition-colors w-40 sm:w-48" />
+          class="w-full md:w-44 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2.5 md:py-2 text-sm text-slate-100 placeholder-slate-500 outline-none focus:border-brand-mid transition-colors" />
       </label>
 
-      <label class="flex flex-col gap-1 flex-shrink-0">
-        <span class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Min %</span>
-        <input type="number" id="minChangeInput" placeholder="e.g. 10" step="0.1"
-          class="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 placeholder-slate-500 outline-none focus:border-brand-mid transition-colors w-20" />
-      </label>
-
-      <label class="flex flex-col gap-1 flex-shrink-0">
-        <span class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Max %</span>
-        <input type="number" id="maxChangeInput" placeholder="e.g. 100" step="0.1"
-          class="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 placeholder-slate-500 outline-none focus:border-brand-mid transition-colors w-20" />
-      </label>
-
-      <label class="flex flex-col gap-1 flex-shrink-0">
-        <span class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Min Sales</span>
-        <input type="number" id="minSalesInput" placeholder="e.g. 5" min="0"
-          class="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 placeholder-slate-500 outline-none focus:border-brand-mid transition-colors w-20" />
-      </label>
-
-      <label class="flex flex-col gap-1 flex-shrink-0">
-        <span class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Sold Within</span>
-        <input type="number" id="soldWithinInput" placeholder="days" min="1"
-          class="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 placeholder-slate-500 outline-none focus:border-brand-mid transition-colors w-20" />
-      </label>
+      <!-- Number filters: 2×2 grid on mobile, inline on desktop via md:contents -->
+      <div class="grid grid-cols-2 gap-2 md:contents">
+        <label class="flex flex-col gap-1 md:flex-shrink-0">
+          <span class="filter-label">Min %</span>
+          <input type="number" id="minChangeInput" placeholder="e.g. 10" step="0.1"
+            class="w-full md:w-20 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2.5 md:py-2 text-sm text-slate-100 placeholder-slate-500 outline-none focus:border-brand-mid transition-colors" />
+        </label>
+        <label class="flex flex-col gap-1 md:flex-shrink-0">
+          <span class="filter-label">Max %</span>
+          <input type="number" id="maxChangeInput" placeholder="e.g. 100" step="0.1"
+            class="w-full md:w-20 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2.5 md:py-2 text-sm text-slate-100 placeholder-slate-500 outline-none focus:border-brand-mid transition-colors" />
+        </label>
+        <label class="flex flex-col gap-1 md:flex-shrink-0">
+          <span class="filter-label">Min Sales</span>
+          <input type="number" id="minSalesInput" placeholder="e.g. 5" min="0"
+            class="w-full md:w-20 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2.5 md:py-2 text-sm text-slate-100 placeholder-slate-500 outline-none focus:border-brand-mid transition-colors" />
+        </label>
+        <label class="flex flex-col gap-1 md:flex-shrink-0">
+          <span class="filter-label">Sold Within</span>
+          <input type="number" id="soldWithinInput" placeholder="days" min="1"
+            class="w-full md:w-20 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2.5 md:py-2 text-sm text-slate-100 placeholder-slate-500 outline-none focus:border-brand-mid transition-colors" />
+        </label>
+      </div>
 
       <button id="clearFiltersBtn" type="button"
-        class="self-end px-3 py-2 text-xs font-semibold rounded-lg border border-slate-700 bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-slate-200 transition-colors whitespace-nowrap mb-0.5">
-        Clear
+        class="md:self-end w-full md:w-auto px-3 py-2.5 md:py-2 text-xs font-semibold rounded-lg border border-slate-700 bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-slate-200 transition-colors md:whitespace-nowrap md:mb-0.5">
+        Clear Filters
       </button>
     </div>
   </header>
 
   <!-- ═══ STATS ROW ═════════════════════════════════════════════════════════ -->
-  <div class="flex-none grid grid-cols-2 md:grid-cols-4 gap-3 px-4 py-3 border-b border-slate-800/60 bg-[#07090e]">
+  <div class="flex-none grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3 px-4 py-3 border-b border-slate-800/60 bg-[#07090e]">
 
-    <div class="rounded-xl border border-brand/20 bg-gradient-to-br from-brand/8 to-transparent px-3 py-3 md:px-4">
+    <div class="rounded-xl border border-brand/20 bg-gradient-to-br from-brand/8 to-transparent px-3 py-3">
       <p class="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-1">Gainers</p>
-      <p class="font-display font-bold text-xl md:text-2xl text-brand tabular-nums" id="statUpCount">—</p>
+      <p class="font-display font-bold text-2xl text-brand tabular-nums" id="statUpCount">—</p>
       <p class="text-[11px] text-slate-500 mt-1 tabular-nums" id="statAvgUp">avg —</p>
     </div>
 
-    <div class="rounded-xl border border-danger/20 bg-gradient-to-br from-danger/8 to-transparent px-3 py-3 md:px-4">
+    <div class="rounded-xl border border-danger/20 bg-gradient-to-br from-danger/8 to-transparent px-3 py-3">
       <p class="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-1">Losers</p>
-      <p class="font-display font-bold text-xl md:text-2xl text-danger tabular-nums" id="statDownCount">—</p>
+      <p class="font-display font-bold text-2xl text-danger tabular-nums" id="statDownCount">—</p>
       <p class="text-[11px] text-slate-500 mt-1 tabular-nums" id="statAvgDown">avg —</p>
     </div>
 
-    <div class="rounded-xl border border-slate-800 bg-slate-900/60 px-3 py-3 md:px-4">
+    <div class="rounded-xl border border-slate-800 bg-slate-900/60 px-3 py-3">
       <p class="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-1">Top Gain</p>
-      <p class="font-display font-bold text-xl md:text-2xl text-slate-100 tabular-nums" id="statTopGainer">—</p>
+      <p class="font-display font-bold text-2xl text-slate-100 tabular-nums" id="statTopGainer">—</p>
       <p class="text-[11px] text-slate-500 mt-1">best mover</p>
     </div>
 
-    <div class="rounded-xl border border-slate-800 bg-slate-900/60 px-3 py-3 md:px-4">
+    <div class="rounded-xl border border-slate-800 bg-slate-900/60 px-3 py-3">
       <p class="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-1">Top Loss</p>
-      <p class="font-display font-bold text-xl md:text-2xl text-slate-100 tabular-nums" id="statTopLoser">—</p>
+      <p class="font-display font-bold text-2xl text-slate-100 tabular-nums" id="statTopLoser">—</p>
       <p class="text-[11px] text-slate-500 mt-1">worst mover</p>
     </div>
 
   </div>
 
   <!-- ═══ TABLES ════════════════════════════════════════════════════════════
-       Desktop: side-by-side, fill remaining viewport height (flex-1 + overflow-hidden)
-       Mobile:  stacked, each panel fixed at 50vh so both are visible before charts
+       Desktop : side-by-side, fill remaining viewport (flex-1 overflow-hidden)
+       Mobile  : stacked, each 50vh so both tables are visible above the fold
   ══════════════════════════════════════════════════════════════════════════ -->
   <div class="grid grid-cols-1 md:grid-cols-2 md:flex-1 divide-y md:divide-y-0 md:divide-x divide-slate-800 md:overflow-hidden md:min-h-0">
 
@@ -209,10 +212,18 @@
 
   </div>
 
-  <!-- ═══ CHARTS (collapsible, below tables) ════════════════════════════════ -->
+  <!-- ═══ LOAD ALL button (mobile only, visible below tables) ══════════════ -->
+  <div class="sm:hidden px-4 py-3 border-t border-slate-800 bg-[#07090e]">
+    <button id="loadAllBtnMobile" type="button"
+      class="w-full py-2.5 text-sm font-semibold rounded-lg border border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700 transition-colors">
+      Load All Cards
+    </button>
+  </div>
+
+  <!-- ═══ CHARTS (collapsible) ══════════════════════════════════════════════ -->
   <div class="flex-none border-t border-slate-800 bg-[#07090e]">
     <button id="chartsToggle" onclick="document.getElementById('chartsPanel').classList.toggle('hidden')" type="button"
-      class="w-full flex items-center gap-2 px-5 py-2 text-[11px] font-semibold text-slate-500 hover:text-slate-300 transition-colors text-left">
+      class="w-full flex items-center gap-2 px-5 py-2.5 text-[11px] font-semibold text-slate-500 hover:text-slate-300 transition-colors text-left">
       <span id="chartsToggleIcon">▸</span>
       <span>Analytics Charts</span>
     </button>
@@ -245,7 +256,7 @@
     <span class="hidden sm:inline">5 periods: 1D / 1W / 1M / 3M / 1Y</span>
     <span class="text-slate-700 hidden sm:inline">·</span>
     <span class="hidden sm:inline">Browser cache 1 hr</span>
-    <span class="text-slate-700 hidden sm:inline">·</span>
+    <span class="text-slate-700">·</span>
     <a href="https://www.cardladder.com/ladder" target="_blank" rel="noopener" class="text-slate-500 hover:text-slate-300 transition-colors">cardladder.com/ladder</a>
   </footer>
 
