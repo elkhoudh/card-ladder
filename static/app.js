@@ -159,9 +159,9 @@ function renderCardRow(card, index, period) {
           </div>
         </div>
       </td>
-      <td class="td-dim">${displayValue(card.grade) || "—"}</td>
-      <td class="td-dim">${displayValue(card.pop) || "—"}</td>
-      <td class="td-dim">${card.num_sales != null ? Number(card.num_sales).toLocaleString() : "—"}</td>
+      <td class="td-dim col-opt">${displayValue(card.grade) || "—"}</td>
+      <td class="td-dim col-opt">${displayValue(card.pop) || "—"}</td>
+      <td class="td-dim col-opt">${card.num_sales != null ? Number(card.num_sales).toLocaleString() : "—"}</td>
       <td>
         <div class="change-cell">
           <span class="${changeClass}">${formatPercent(change)}</span>
@@ -169,8 +169,8 @@ function renderCardRow(card, index, period) {
         </div>
       </td>
       <td class="td-dim">${formatMoney(card.market_value) || "—"}</td>
-      <td style="color:#94a3b8">${formatMoney(card.last_sold) || "—"}</td>
-      <td class="td-muted" title="${soldDateTitle}">${soldDate || "—"}</td>
+      <td class="col-opt-sm" style="color:#94a3b8">${formatMoney(card.last_sold) || "—"}</td>
+      <td class="td-muted col-opt" title="${soldDateTitle}">${soldDate || "—"}</td>
     </tr>
   `;
 }
