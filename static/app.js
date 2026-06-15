@@ -169,8 +169,8 @@ function renderCardRow(card, index, period) {
         </div>
       </td>
       <td class="td-dim">${formatMoney(card.market_value) || "—"}</td>
-      <td class="col-opt-sm" style="color:#94a3b8">${formatMoney(card.last_sold) || "—"}</td>
-      <td class="td-muted col-opt" title="${soldDateTitle}">${soldDate || "—"}</td>
+      <td style="color:#94a3b8">${formatMoney(card.last_sold) || "—"}</td>
+      <td class="td-muted" title="${soldDateTitle}">${soldDate || "—"}</td>
     </tr>
   `;
 }
